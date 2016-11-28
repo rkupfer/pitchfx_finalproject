@@ -2,19 +2,34 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
+from matplotlib.patches import Rectangle
 
 df = pd.read_csv("selected_pitches.csv")
 
-plot_df = df[['x', 'y']]
+mask = df.pitch_res=="C"
+df = df[mask]
 
-heatmap, xedges, yedges = np.histogram2d(plot_df.x, plot_df.y, bins=(64,64))
+plot_df = df[["px", "pz"]]
+plt.hist(plot_df.pz)
+
+heatmap, xedges, yedges = np.histogram2d(plot_df.px, plot_df.pz, bins=(64,64))
 extent = [xedges[0], xedges[-1], yedges[0], yedges[-1]]
+
 
 # Plot heatmap
 plt.clf()
-plt.title('Pythonspot.com heatmap example')
-plt.ylabel('y')
-plt.xlabel('x')
-plt.imshow(heatmap, extent=extent)
+someX, someY = 0, 2.5
+fig,ax = plt.subplots()
+currentAxis = plt.gca()
+currentAxis.add_patch(Rectangle((someX - 0.6, someY - 1), 1.2, 2,
+                      alpha=1, facecolor='none'))
+currentAxis.add_patch(Rectangle((someX - 1, someY - 1), 1.6, 2,
+                      alpha=1, facecolor='none'))
+plt.title('Pitch Locations')
+# plt.ylabel('pz')
+# plt.xlabel('px')
+
+colors = plt.cm.Greys
+
+plt.imshow(heatmap, cmap=plt.cm.Greys, alpha=.9, interpolation='bilinear', extent=extent)
 plt.show()
