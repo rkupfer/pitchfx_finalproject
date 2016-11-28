@@ -1,17 +1,17 @@
--- CREATE TABLE selected_pitches (game_id VARCHAR(11),
---   home_team_id VARCHAR(11), bat_home_id INTEGER, park_name VARCHAR(256),
---   pit_id INTEGER, pitch_seq VARCHAR(256), x VARCHAR(11), y VARCHAR(11),
---   zone VARCHAR(11), pitch_res VARCHAR(11),Name VARCHAR(50),
---   Race VARCHAR(11), Hispanic INTEGER);
---
--- CREATE TABLE pitcher_info (Name VARCHAR(50), ID INTEGER,
---   Race VARCHAR(11), Hispanic INTEGER);
--- .mode csv
--- .import "PITCHf_x ID Name and Race.csv" pitcher_info
+CREATE TABLE selected_pitches (game_id VARCHAR(11),
+  home_team_id VARCHAR(11), bat_home_id INTEGER, park_name VARCHAR(256),
+  pit_id INTEGER, pitch_seq VARCHAR(256), px VARCHAR(11), pz VARCHAR(11),
+  zone VARCHAR(11), pitch_res VARCHAR(11),Name VARCHAR(50),
+  Race VARCHAR(11), Hispanic INTEGER);
+
+CREATE TABLE pitcher_info (Name VARCHAR(50), ID INTEGER,
+  Race VARCHAR(11), Hispanic INTEGER);
+.mode csv
+.import "PITCHf_x ID Name and Race.csv" pitcher_info
 
 INSERT INTO selected_pitches (game_id, home_team_id, bat_home_id, park_name,
-  pit_id, pitch_seq, x, y, zone, pitch_res, Name, Race, Hispanic)
-SELECT game_id, home_team_id, bat_home_id, park_name, pit_id, pitch_seq, x, y, zone, pitch_res,
+  pit_id, pitch_seq, px, pz, zone, pitch_res, Name, Race, Hispanic)
+SELECT game_id, home_team_id, bat_home_id, park_name, pit_id, pitch_seq, px, pz, zone, pitch_res,
   Name, Race, Hispanic
 FROM pitches
 LEFT JOIN pitcher_info
