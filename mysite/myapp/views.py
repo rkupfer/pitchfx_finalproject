@@ -5,13 +5,22 @@ from django.shortcuts import render
 
 # from django.urls import reverse # future versions.
 from django.core.urlresolvers import reverse_lazy
+from .forms import InputForm
 
 
 from os.path import join
 from django.conf import settings
 
+from .forms import InputForm
 
-from .forms import Plot
+def form(request):
+    #Races = request.GET.get('Race', '')
+    params = {'form_action': reverse_lazy('myapp:form'),
+        'form_method' : 'get',
+        'form' : InputForm()}
+    return render(request, 'form.html', params)
+
+#from .forms import Plot
 
 import pandas as pd
 import numpy as np
@@ -46,13 +55,13 @@ def plot(request):
 
     # Plot heatmap
     plt.clf()
-    # someX, someY = 0, 2.5
-    # fig,ax = plt.subplots()
-    # currentAxis = plt.gca()
-    # currentAxis.add_patch(Rectangle((someX - 0.6, someY - 1), 1.2, 2,
-    #                       alpha=1, facecolor='none'))
-    # currentAxis.add_patch(Rectangle((someX - 1, someY - 1), 1.6, 2,
-    #                       alpha=1, facecolor='none'))
+    someX, someY = 0, 2.5
+    fig,ax = plt.subplots()
+    currentAxis = plt.gca()
+    currentAxis.add_patch(Rectangle((someX - 0.6, someY - 1), 1.2, 2,
+                          alpha=1, facecolor='none'))
+    currentAxis.add_patch(Rectangle((someX - 1, someY - 1), 1.6, 2,
+                          alpha=1, facecolor='none'))
     plt.title('Pitch Locations')
     # plt.ylabel('pz')
     # plt.xlabel('px')
@@ -62,6 +71,6 @@ def plot(request):
     img2 = plt.imshow(heatmapb.T, cmap=plt.cm.Reds, alpha=0.7, interpolation='bilinear', extent=extentb)
     plt.ylim(0,4.5)
     plt.xlim(-3.5,3.5)
-    plt.show()
+    #plt.show()
 
     return HttpResponse(Plot)

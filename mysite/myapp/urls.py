@@ -6,4 +6,6 @@ app_name = 'myapp'
 urlpatterns = [
 
     url(r'^$', views.index, name='index'),
-    url(r'^plot/$', views.plot, name='plot')]
+    url(r'^form/$', views.form, name ='form'),
+    url(r'^plot$', views.plot, name='plot')
+]
