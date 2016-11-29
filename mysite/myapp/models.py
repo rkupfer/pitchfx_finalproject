@@ -7,19 +7,26 @@ Pitcher_Race = (
                 ('White', 'White'),
                 ('Asian', 'Asian'),
                 ('Other', 'Other'),
-                ('Black White Asian Other', 'All')
+                ('Black' 'White' 'Asian' 'Other', 'All') #trying to make a dropdown that allows us to plot not based on race
     )
 class Input(models.Model):
     Pitcher_Race = models.CharField(max_length=50, choices=Pitcher_Race)
 
 Pitcher_Ethnicity = (
                     ('0', 'Non-Hispanic' ),
-                    ('1', 'Hispanic')
+                    ('1', 'Hispanic'),
+                    ('0' '1', "All") #trying to make a dropdown that allows us to plot not based on race
 )
 class Input(models.Model):
     Pitcher_Ethnicity = models.CharField(max_length=50, choices=Pitcher_Ethnicity)
 
 Park_Name = (
+            ('Angel Stadium of Anaheim' 'AT&T Park' 'Busch Stadium' 'Chase Field' 'Citi Field' 'Citizens Bank Park' 'Comerica Park'
+            'Coors Field' 'Dodger Stadium' 'Fenway Park' 'Fort Bragg Field' 'Globe Life Park in Arlington'
+            'Great American Ball Park' 'Kauffman Stadium' 'Marlins Park' 'Miller Park' 'Minute Maid Park'
+            'Nationals Park' 'Oakland Coliseum' 'Oriole Park at Camden Yards' 'Peoria Stadium' 'Petco Park'
+            'PNC Park' 'Progressive Field' 'Rogers Centre' 'Safeco Field' 'Target Field' 'Tropicana Field'
+            'Turner Field' 'U.S. Cellular Field' 'Wrigley Field' 'Yankee Stadium', 'All') #trying to get an ALL field....
             ('Angel Stadium of Anaheim', 'Angel Stadium of Anaheim'),
             ('AT&T Park', 'AT&T Park'),
             ('Busch Stadium', 'Busch Stadium'),
