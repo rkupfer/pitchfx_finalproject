@@ -1,31 +1,24 @@
-from django import forms  
-from .models import Input, Counties, STATES, CURRENCY, COUNTIES
+from django import forms
 
-class InputForm(forms.ModelForm):  
+class Plot(forms.ModelForm):
 
-    state = forms.ChoiceField(choices=STATES, required=True,
+    Pitcher_Race = forms.ChoiceField(choices="Race", required=False,
                               widget=forms.Select())
 
+    Pitcher_Ethnicity = forms.ChoiceField(choices="Hispanic",required=False,
+                              widget=forms.Select())
+
+    #League = forms.ChoiceField(choices=LEAGUE, required=False,
+                              #widget=forms.Select())
+
+    Park_Name = forms.ChoiceField(choices="park_name", required=False,
+                              widget=forms.Select())
+
+    Home_or_Away = forms.ChoiceField(choices="bat_home_id", required=False,
+                              widget=forms.Select())
+
+    #Umpire Race = forms.ChoiceField(choices=UMPRACE, required=False,
+                              #widget=forms.Select())
+
     attrs = {'class ' : 'form-nav-control',
              'onchange ' : 'this.form.submit()'}
-
-    currency = forms.ChoiceField(choices=CURRENCY, required=True,
-                                 widget=forms.Select(attrs = attrs))
-    class Meta:
-
-        model = Input
-        fields = ['state', 'address', "currency"]
-
-
-
-class CountiesForm(forms.ModelForm):  
-
-    attrs = {'class ' : 'form-nav-control',
-             'onchange ' : 'this.form.submit()'}
-
-    county = forms.ChoiceField(choices = COUNTIES, required = True,
-                               widget = forms.Select(attrs = attrs))
-    class Meta:
-
-        model = Counties
-        fields = ['county']
