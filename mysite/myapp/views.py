@@ -12,13 +12,48 @@ from os.path import join
 from django.conf import settings
 
 from .forms import InputForm
-
+from .models import Pitcher_Race, Pitcher_Ethnicity, Park_Name, Home_or_Away, Race_dict
 def form(request):
-    #Races = request.GET.get('Race', '')
+    Race = request.GET.get('Pitcher_Race', '')
+    if not Race: Race = request.POST.get('Pitcher_Race', 'Black')
     params = {'form_action': reverse_lazy('myapp:form'),
         'form_method' : 'get',
-        'form' : InputForm()}
+        'form' : InputForm({'Race' : Race}),
+        'Race' : Race_dict[Pitcher_Race]}
+        # , 'Ethnicity' : Pitcher_Ethnicity,
+        #     'Park Name' : Park_Name, 'Home or Away' : Home_or_Away
+
+        # 'form1' : RaceForm('Race' : Pitcher_Race),
+        # 'form2' : EthnicityForm('Ethnicity' : Pitcher_Ethnicity),
+        # 'form3' : ParkForm('Park Name' : Park_Name),
+        # 'form4' : HomeAwayForm('Home or Away' : Home_or_Away)}
     return render(request, 'form.html', params)
+
+from django.views.generic import FormView
+class FormClass(FormView):
+
+    template_name = 'form.html'
+    form_class = InputForm
+
+
+    def get(self, request):
+
+      Race = request.GET.get('Race', 'Black')
+
+      return render(request, self.template_name, {'form_action': reverse_lazy('myapp:form'),
+                                                  'form_method' : 'get',
+                                                  'form' : InputForm({'Race' : Race}),
+                                                  'Race' : Race_dict[Pitcher_Race]})
+
+    def post(self, request):
+
+      Race = request.POST.get('Race', 'Black')
+
+      return render(request, self.template_name, {'form_action': reverse_lazy('myapp:form'),
+                                                  'form_method' : 'get',
+                                                  'form' : InputForm({'Race' : Race}),
+                                                  'Race' : Race_dict[Pitcher_Race]})
+
 
 #from .forms import Plot
 

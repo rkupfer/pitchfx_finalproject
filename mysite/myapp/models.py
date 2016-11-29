@@ -9,6 +9,7 @@ Pitcher_Race = (
                 ('Other', 'Other'),
                 ('Black' 'White' 'Asian' 'Other', 'All') #trying to make a dropdown that allows us to plot not based on race
     )
+Race_dict = dict(Pitcher_Race)
 class Input(models.Model):
     Pitcher_Race = models.CharField(max_length=50, choices=Pitcher_Race)
 
@@ -26,7 +27,7 @@ Park_Name = (
             'Great American Ball Park' 'Kauffman Stadium' 'Marlins Park' 'Miller Park' 'Minute Maid Park'
             'Nationals Park' 'Oakland Coliseum' 'Oriole Park at Camden Yards' 'Peoria Stadium' 'Petco Park'
             'PNC Park' 'Progressive Field' 'Rogers Centre' 'Safeco Field' 'Target Field' 'Tropicana Field'
-            'Turner Field' 'U.S. Cellular Field' 'Wrigley Field' 'Yankee Stadium', 'All') #trying to get an ALL field....
+            'Turner Field' 'U.S. Cellular Field' 'Wrigley Field' 'Yankee Stadium', 'All'), #trying to get an ALL field....
             ('Angel Stadium of Anaheim', 'Angel Stadium of Anaheim'),
             ('AT&T Park', 'AT&T Park'),
             ('Busch Stadium', 'Busch Stadium'),
@@ -69,4 +70,4 @@ Home_or_Away = (
                 ('1', 'Home')
 )
 class Input(models.Model):
-    Pitcher_Ethnicity = models.CharField(max_length=50, choices=Pitcher_Ethnicity)
+    Home_or_Away = models.CharField(max_length=50, choices=Home_or_Away)
