@@ -9,4 +9,5 @@ urlpatterns = [
     url(r'^form/$', views.form, name ='form'),
     url(r'^formclass/$', views.FormClass.as_view(), name = "formclass"),
     url(r'^plot/$', views.plot, name='plot'),
+    url(r'^ourdata/$', views.our_data, name='our data')
 ]
