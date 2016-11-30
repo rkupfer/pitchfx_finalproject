@@ -28,6 +28,9 @@ def form(request):
     if not home_or_away: home_or_away = request.POST.get('home_or_away', '0')
 
     # plot = "<p> hi there </p>"
+    img_name = 'current_img.png'
+    # img_url = settings.STATIC_URL + '%s.png' % img_name
+    plot(pitcher_race, pitcher_ethnicity, park_name, home_or_away, img_name)
     params = {'form_action': reverse_lazy('myapp:form'),
               'form_method' : 'get',
               'form' : InputForm({'pitcher_race' : pitcher_race, 'pitcher_ethnicity' : pitcher_ethnicity,
@@ -36,7 +39,7 @@ def form(request):
               'pitcher_ethnicity' : ETHNICITY_DICT[pitcher_ethnicity],
               'park_name' : PARK_NAME_DICT[park_name],
               'home_or_away' : HOME_DICT[home_or_away],
-              'plot' : plot(pitcher_race, pitcher_ethnicity, park_name, home_or_away)}
+              'img_name' : img_name} #plot(pitcher_race, pitcher_ethnicity, park_name, home_or_away)}
 
 
     return render(request, 'form.html', params)
@@ -71,38 +74,42 @@ class FormClass(FormView):
 
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt, mpld3
+import matplotlib.pyplot as plt
 from matplotlib.patches import Rectangle
 
 def index (request):
     return HttpResponse("baseball.")
 
 
-def plot(pitcher_race, pitcher_ethnicity, park_name, home_or_away):
+def plot(pitcher_race, pitcher_ethnicity, park_name, home_or_away, img_name):
+
+    # print(settings.STATIC_ROOT)
+    IMGROOT = settings.BASE_DIR + '/myapp/static/'
+    print(IMGROOT)
     # print(pitcher_race, pitcher_ethnicity, park_name, home_or_away)
     filename = join(settings.STATIC_ROOT, 'myapp/selected_pitches.csv')
     df = pd.read_csv(filename)
-    # print(df.head())
+    print(df.head())
     maskrace = df.Race == pitcher_race
     maskethnicity = df.Hispanic == int(pitcher_ethnicity)
     maskname = df.park_name == park_name
     maskhome = df.bat_home_id == int(home_or_away)
 
-    print("check")
-    df = df[maskrace & maskethnicity & maskname & maskhome]
-    print("check2")
+    df = df[maskrace]
+    df = df[maskethnicity]
+    df = df[maskname]
+    df = df[maskhome]
+
+
+    #df[a.all(maskrace, maskethnicity, maskname, maskhome)]
+
+
     maskc = df.pitch_res=="C"
-    print("check3")
     maskb = df.pitch_res=="B"
-    print("check4")
     dfc = df[maskc]
-    print("check5")
     dfb = df[maskb]
-    print("check6")
     plot_dfc = dfc[["px", "pz"]]
-    print("check7")
     plot_dfb = dfb[["px", "pz"]]
-    print("check8")
 
     heatmapc, xedgesc, yedgesc = np.histogram2d(plot_dfc.px, plot_dfc.pz, bins=(64,64))
 
@@ -133,19 +140,18 @@ def plot(pitcher_race, pitcher_ethnicity, park_name, home_or_away):
     plt.hold(True)
     img2 = plt.imshow(heatmapb.T, cmap=plt.cm.Reds, alpha=0.7, interpolation='bilinear', extent=extentb)
 
-    print("check9")
-
     plt.ylim(0,4.5)
     plt.xlim(-3.5,3.5)
 
-    print("check10")
-    plt.show()
-    print("check11")
-    return "<p> hi </p>"
-    #
-    # from io import BytesIO
-    # figfile = BytesIO
-    #
-    # plt.savefig(figfile, format = "png")
-    # figfile.seek(0)
-    return HttpResponse(figfile.read(), content_type = "image/png")
+    print("check1")
+    #plt.show()
+    print("check2")
+    # return "<p> hi </p>"
+
+    from io import BytesIO
+    figfile = open(IMGROOT + img_name, 'w+')
+
+    plt.savefig(figfile, format = "png")
+
+    # return mpld3(plt)
+    #HttpResponse(figfile.read(), content_type = "image/png")

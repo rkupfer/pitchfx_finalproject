@@ -9,5 +9,10 @@
   {% endif %}
 
   {{ form.as_p }}
+  <button type="submit">
+    Go!
+  </button>
 </form>
-{{plot | safe}}
+
+{% load static %}
+<img src="{% static 'current_img.png' %}"/>
