@@ -12,21 +12,33 @@ from os.path import join
 from django.conf import settings
 
 from .forms import InputForm
-from .models import Pitcher_Race, Pitcher_Ethnicity, Park_Name, Home_or_Away, Race_dict
+from .models import RACE_DICT, ETHNICITY_DICT, PARK_NAME_DICT, HOME_DICT
+# Pitcher_Ethnicity, Park_Name, Home_or_Away,
 def form(request):
-    Race = request.GET.get('Pitcher_Race', '')
-    if not Race: Race = request.POST.get('Pitcher_Race', 'Black')
-    params = {'form_action': reverse_lazy('myapp:form'),
-        'form_method' : 'get',
-        'form' : InputForm({'Race' : Race}),
-        'Race' : Race_dict[Pitcher_Race]}
-        # , 'Ethnicity' : Pitcher_Ethnicity,
-        #     'Park Name' : Park_Name, 'Home or Away' : Home_or_Away
+    pitcher_race = request.GET.get('pitcher_race', '')
+    if not pitcher_race: pitcher_race = request.POST.get('pitcher_race', 'Black')
 
-        # 'form1' : RaceForm('Race' : Pitcher_Race),
-        # 'form2' : EthnicityForm('Ethnicity' : Pitcher_Ethnicity),
-        # 'form3' : ParkForm('Park Name' : Park_Name),
-        # 'form4' : HomeAwayForm('Home or Away' : Home_or_Away)}
+    pitcher_ethnicity = request.GET.get('pitcher_ethnicity', '')
+    if not pitcher_ethnicity: pitcher_ethnicity = request.POST.get('pitcher_ethnicity', '0')
+
+    park_name = request.GET.get('park_name', '')
+    if not park_name: park_name = request.POST.get('park_name', 'Petco Park')
+
+    home_or_away = request.GET.get('home_or_away', '')
+    if not home_or_away: home_or_away = request.POST.get('home_or_away', '0')
+
+    # plot = "<p> hi there </p>"
+    params = {'form_action': reverse_lazy('myapp:form'),
+              'form_method' : 'get',
+              'form' : InputForm({'pitcher_race' : pitcher_race, 'pitcher_ethnicity' : pitcher_ethnicity,
+                                  'park_name' : park_name, 'home_or_away' : home_or_away}),
+              'pitcher_race' : RACE_DICT[pitcher_race],
+              'pitcher_ethnicity' : ETHNICITY_DICT[pitcher_ethnicity],
+              'park_name' : PARK_NAME_DICT[park_name],
+              'home_or_away' : HOME_DICT[home_or_away],
+              'plot' : plot(pitcher_race, pitcher_ethnicity, park_name, home_or_away)}
+
+
     return render(request, 'form.html', params)
 
 from django.views.generic import FormView
@@ -38,48 +50,59 @@ class FormClass(FormView):
 
     def get(self, request):
 
-      Race = request.GET.get('Race', 'Black')
+      pitcher_race = request.GET.get('pitcher_race', 'Black')
 
       return render(request, self.template_name, {'form_action': reverse_lazy('myapp:form'),
                                                   'form_method' : 'get',
                                                   'form' : InputForm({'Race' : Race}),
-                                                  'Race' : Race_dict[Pitcher_Race]})
+                                                  'pitcher_race' : RACE_DICT[pitcher_race]})
 
     def post(self, request):
 
-      Race = request.POST.get('Race', 'Black')
+      pitcher_race = request.POST.get('pitcher_race', 'Black')
 
       return render(request, self.template_name, {'form_action': reverse_lazy('myapp:form'),
                                                   'form_method' : 'get',
                                                   'form' : InputForm({'Race' : Race}),
-                                                  'Race' : Race_dict[Pitcher_Race]})
+                                                  'pitcher_race' : RACE_DICT[pitcher_race]})
 
 
 #from .forms import Plot
 
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
-import seaborn as sns
-sns.set(font_scale = 1.7)
-#from matplotlib.patches import Rectangle
+import matplotlib.pyplot as plt, mpld3
+from matplotlib.patches import Rectangle
 
 def index (request):
     return HttpResponse("baseball.")
 
 
-def plot(request):
-
+def plot(pitcher_race, pitcher_ethnicity, park_name, home_or_away):
+    # print(pitcher_race, pitcher_ethnicity, park_name, home_or_away)
     filename = join(settings.STATIC_ROOT, 'myapp/selected_pitches.csv')
     df = pd.read_csv(filename)
+    # print(df.head())
+    maskrace = df.Race == pitcher_race
+    maskethnicity = df.Hispanic == int(pitcher_ethnicity)
+    maskname = df.park_name == park_name
+    maskhome = df.bat_home_id == int(home_or_away)
 
+    print("check")
+    df = df[maskrace & maskethnicity & maskname & maskhome]
+    print("check2")
     maskc = df.pitch_res=="C"
+    print("check3")
     maskb = df.pitch_res=="B"
+    print("check4")
     dfc = df[maskc]
+    print("check5")
     dfb = df[maskb]
-
+    print("check6")
     plot_dfc = dfc[["px", "pz"]]
+    print("check7")
     plot_dfb = dfb[["px", "pz"]]
+    print("check8")
 
     heatmapc, xedgesc, yedgesc = np.histogram2d(plot_dfc.px, plot_dfc.pz, bins=(64,64))
 
@@ -91,12 +114,17 @@ def plot(request):
     # Plot heatmap
     plt.clf()
     someX, someY = 0, 2.5
-    fig,ax = plt.subplots()
-    currentAxis = plt.gca()
-    currentAxis.add_patch(Rectangle((someX - 0.6, someY - 1), 1.2, 2,
-                          alpha=1, facecolor='none'))
-    currentAxis.add_patch(Rectangle((someX - 1, someY - 1), 1.6, 2,
-                          alpha=1, facecolor='none'))
+    fig, ax = plt.subplots()
+    # currentAxis = plt.gca()
+    # currentAxis.add_patch(Rectangle((someX - 0.6, someY - 1), 1.2, 2,
+    #                       alpha=1, facecolor='none'))
+    # currentAxis.add_patch(Rectangle((someX - 1, someY - 1), 1.6, 2,
+    #                       alpha=1, facecolor='none'))
+    #plt.add_patch(Rectangle((someX - 0.6, someY - 1), 1.2, 2,
+                          #alpha=1, facecolor='none'))
+    #plt.add_patch(Rectangle((someX - 1, someY - 1), 1.6, 2,
+                          #alpha=1, facecolor='none'))
+
     plt.title('Pitch Locations')
     # plt.ylabel('pz')
     # plt.xlabel('px')
@@ -104,8 +132,20 @@ def plot(request):
     img1 = plt.imshow(heatmapc.T, cmap=plt.cm.Blues, alpha=1, interpolation='bilinear', extent=extentc)
     plt.hold(True)
     img2 = plt.imshow(heatmapb.T, cmap=plt.cm.Reds, alpha=0.7, interpolation='bilinear', extent=extentb)
+
+    print("check9")
+
     plt.ylim(0,4.5)
     plt.xlim(-3.5,3.5)
-    #plt.show()
 
-    return HttpResponse(Plot)
+    print("check10")
+    plt.show()
+    print("check11")
+    return "<p> hi </p>"
+    #
+    # from io import BytesIO
+    # figfile = BytesIO
+    #
+    # plt.savefig(figfile, format = "png")
+    # figfile.seek(0)
+    return HttpResponse(figfile.read(), content_type = "image/png")
