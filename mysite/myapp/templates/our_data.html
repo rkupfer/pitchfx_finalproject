@@ -40,7 +40,6 @@
           <a class="blog-nav-item" href="http://127.0.0.1:8000/myapp/form/">Pitches</a>
           <a class="blog-nav-item active" href="http://127.0.0.1:8000/myapp/ourdata/">Our Data</li>
           <a class="blog-nav-item" href="http://www.brooksbaseball.net/pfxVB/pfx.php">pitchFX</a>
-          <a class="blog-nav-item" href="#">About</a>
         </nav>
       </div>
     </div>
@@ -48,51 +47,71 @@
     <div class="container">
 
       <div class="blog-header">
-        <h1 class="blog-title"> READ ME METHODOLOGY/DATA DESCRIPTION WILL GO HERE</h1>
-        <p class="lead blog-description">This is how we made this webpage and how to use it!</p>
+        <h1 class="blog-title"> Baseball Pitches </h1>
+        <p class="lead blog-description">How and why we made this website!</p>
       </div>
       <div class="row">
 
         <div class="col-sm-8 blog-main">
 
           <div class="blog-post">
-            <h2 class="blog-post-title">readme stuff</h2>
+            <h2 class="blog-post-title">Our Methodology for and Aim of this Website</h2>
             <p class="blog-post-meta">December, 2016 by <a href="#">Josh and Rachel</a></p>
 
-            <p>we did the following things to create this webpage</p>
+            <p>Why did we create this app?</p>
             <hr>
 
-            <p>We can put stuff here .</p>
+            <p><em><strong>The question: is there a relationship between a batter and pitcher characteristics and the balls and strikes called against them in the MLB?</strong></em></p>
             <hr>
-            <p>or here <a href="#">dd</a>, ffff.</p>
-            <blockquote>
-              <p>Cfsditor. <strong>bold</strong> fsd.</p>
-            </blockquote>
-            <p>d <em>italics</em> df.</p>
-            <h2>Heading</h2>
-            <p>stuff here.</p>
-            <h3>Sub-heading</h3>
-            <p>stuff also here</p>
-            <pre><code>Example code block</code></pre>
-            <p>Akjkjhkjhkjh.</p>
-            <h3>Sub-heading</h3>
-            <p>blablablabla.</p>
-            <ul>
-              <li>do we want bullets?</li>
-              <li>who knows.</li>
-            </ul>
-            <p>Dafsde.</p>
+            <p><h2>In order to run this app:</h2></p>
             <ol>
-              <li>numbers?.</li>
-              <li>dsf.</li>
+              <li>First, run the server: <pre><code>python manage.py runserver</code></pre></li>
+              <li>Copy and paste <a href=http://127.0.0.1:8000/myapp/form/>this ("http://127.0.0.1:8000/myapp/form/")</a> into your web browser to run it.</li>
+              <li>Use the form to create the graph you are interested in (pick the race, ethnicity, and game status (home/away)).  The press "Go!" </li>
             </ol>
-            <p>lk</p>
+            <p>Once you do this, a graph will display itself underneath the form.  Please feel free to change the graph you are looking at by playing around with the dropdown menus.</p>
+            <p>If you would like to learn more about the data we've used and how we created this data, click on the <em>"Readme"</em> header at the top of the page or just click <a href=http://127.0.0.1:8000/myapp/ourdata/> this,</a>  or type into your browser "http://127.0.0.1:8000/myapp/ourdata/."
+              If you would like to see the website from where we found the data, click on <em>"PITCHf/x"</em>.  </p>
+              <p>
+              </div>
+              <p>
+              <a href='#top'>Top of Page</a>
+              <p>
+              </body>
+              </html>
+
+            <h2>Methodology and Our Data Used:</h2>
+
+
+<p> PITCHf/x records the location of every pitch and every major league game, along with identifying information on
+  pitchers, batters, umpires, game situations, and game locations.
+  PITCHf/x data are rich, but also arduous to parse through.
+  Fortunately, other baseball researchers have written python-based parsers to scrape and compile data.
+  The dataset that we scraped only includes
+  regular season games, and pitchers who pitched more than 160 innings during the 2016 season.
+  The variables from this dataset include:
+  <li>Pitcher ID</li>
+  <li>Whether the game was home or away</li>
+  <li>The field at which the game was played</li>
+  <li>The call of the pitch</li>
+  <li>And the location of the pitch based on the hight and distance away from the center of the plate.</li> </p>
+  <p>Our second dataset is a CSV file we made using PITCHf/x pitcher IDs.
+  Using these IDs, we recorded the pitcher's name, race, and ethnicity (Hispanic or not Hispanic).
+  We coded race and ethnicity by looking at photos of each pitcher (as this is how it was done in other baseball research).
+  We then merged the two datasets based on pitcher ID.  </p>
+
+  <p>We used PITCHf/x data to plot pitch locations on an x-y coordinate plane,
+    and code each pitch as a called ball or strike.
+    The web app that we built allows the user to set parameters for which pitches
+    are displayed based on PITCHf/x and Baseball Reference data – e.g. all pitches to black batters in home games.</p>
+
+  <h3>Previous Research</h3>
+  <p>Some previous work has been done on umpire bias, ranging from Internet blog reporting to Hamermesh’s paper on umpires’ racial bias towards pitchers, <a href="http://sabr.org/research/there-racial-bias-among-umpires">see here</a>.
+    Due to lack of time and access to umpier data (while we have umpire codes, we cannot find umpire names or races that correspond to them), we were unable to include "umpire race" as a variable.
+    Our project also did not undertake such deep econometric analyses, but simply provides a useful tool for visualizing differences in ball and strike calls based on a variety of parameters.
+    One reservation about this project is that it seems like a “non-finding” is fairly likely without more intricate statistical analyses.</p>
           </div><!-- /.blog-post -->
-
-
-
-
-
+<p> </p>
 <p>
 </div>
 <p>
@@ -101,7 +120,12 @@
 </body>
 </html>
 
-
+<footer class="blog-footer">
+  <p>Blog template built for <a href="http://getbootstrap.com">Bootstrap</a> by <a href="https://twitter.com/mdo">@mdo</a>.</p>
+  <p>
+    <a href="#">Back to top</a>
+  </p>
+</footer>
 <!-- Bootstrap core JavaScript
 ================================================== -->
 <!-- Placed at the end of the document so the pages load faster -->
