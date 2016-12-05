@@ -88,15 +88,16 @@ class FormClass(FormView):
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
 from matplotlib.patches import Rectangle
+import sqlite3
+import statsmodels.api as sm
+from statsmodels.formula.api import logit as logit
 
 def index (request):
     return HttpResponse("baseball.")
 
-
-def plot(pitcher_race, pitcher_ethnicity,
-# park_name,
-    home_or_away, img_name):
+def plot(pitcher_race, pitcher_ethnicity, home_or_away, img_name):
 
     # print(settings.STATIC_ROOT)
     IMGROOT = settings.BASE_DIR + '/myapp/static/'
@@ -104,31 +105,31 @@ def plot(pitcher_race, pitcher_ethnicity,
     # print(pitcher_race, pitcher_ethnicity, park_name, home_or_away)
     filename = join(settings.STATIC_ROOT, 'myapp/selected_pitches.csv')
     df = pd.read_csv(filename)
+    # con = sqlite3.connect("pitch_tables.sql")
+    # query = ""
+    # for l in open("pitch_extract.sql"): query += l
+    # df = pd.read_sql_query(query,con)
+    # con.close()
     # print(df.head())
+    # print(pitcher_race)
+    # print(df.head(n=10))
+    # df.px = df.px.astype(float).fillna(0.0)
+    # df.pz = df.pz.astype(float).fillna(0.0)
+
+
     maskrace = df.Race == pitcher_race
     maskethnicity = df.Hispanic == int(pitcher_ethnicity)
     # maskname = df.park_name == park_name
     maskhome = df.bat_home_id == int(home_or_away)
-    # if pitcher_race != 'All' : df=df[maskrace]
-    # if pitcher_ethnicity != 'All' : df=df[maskethnicity]
-    # if park_name != 'All' : df=df[maskname]
-    # if home_or_away == 'All' : df = df[maskhome]
-
-    # else: maskrace = df.Race == pitcher_race
-    # if pitcher_ethnicity == 'All' : maskethnicity = 'True'
-    # else: maskethnicity = df.Hispanic == int(pitcher_ethnicity)
-    # if park_name == 'All' : maskname = 'True'
-    # else: maskname = df.park_name == park_name
-    # if home_or_away == 'All' : maskhome = 'True'
-    # else: maskhome = df.bat_home_id == int(home_or_away)
-    df = df[maskrace]
-    df = df[maskethnicity]
+    df = df.loc[maskrace]
+    df = df.loc[maskethnicity]
+    df = df.loc[maskhome]
     # df = df[maskname]
-    df = df[maskhome]
 
-
-    #df[a.all(maskrace, maskethnicity, maskname, maskhome)]
-
+    maskpitch = (df.pitch_res == "C") | (df.pitch_res == "B")
+    df = df.loc[maskpitch]
+    df["strike"] = df.pitch_res == "C"
+    df["strike"] = df["strike"].astype(float)
 
     maskc = df.pitch_res=="C"
     maskb = df.pitch_res=="B"
@@ -137,9 +138,9 @@ def plot(pitcher_race, pitcher_ethnicity,
     plot_dfc = dfc[["px", "pz"]]
     plot_dfb = dfb[["px", "pz"]]
 
-    heatmapc, xedgesc, yedgesc = np.histogram2d(plot_dfc.px, plot_dfc.pz, bins=(24,24))
+    heatmapc, xedgesc, yedgesc = np.histogram2d(plot_dfc.px, plot_dfc.pz, bins=(32,32))
 
-    heatmapb, xedgesb, yedgesb = np.histogram2d(plot_dfb.px, plot_dfb.pz, bins=(24,24))
+    heatmapb, xedgesb, yedgesb = np.histogram2d(plot_dfb.px, plot_dfb.pz, bins=(32,32))
 
     extentc = [xedgesc[0], xedgesc[-1], yedgesc[0], yedgesc[-1]]
     extentb = [xedgesb[0], xedgesb[-1], yedgesb[0], yedgesb[-1]]
@@ -153,33 +154,21 @@ def plot(pitcher_race, pitcher_ethnicity,
                           alpha=1, facecolor='none'))
     currentAxis.add_patch(Rectangle((someX - 1, someY - 1), 1.6, 2,
                           alpha=1, facecolor='none', linestyle = 'dashed'))
-    # currentAxis.add_patch(Rectangle((someX - 0.6, someY - 1), 1.2, 2,
-    #                       alpha=1, facecolor='none'))
-    # currentAxis.add_patch(Rectangle((someX - 1, someY - 1), 1.6, 2,
-    #                       alpha=1, facecolor='none', ))
+
 
     plt.title('Pitch Locations')
-    # plt.ylabel('pz')
-    # plt.xlabel('px')
 
-    img1 = plt.imshow(heatmapc.T, cmap=plt.cm.Blues, alpha=1, interpolation='bilinear', extent=extentc)
+    img1 = plt.imshow(heatmapc.T, cmap=plt.cm.Blues, alpha=1, interpolation='spline16', extent=extentc)
     plt.hold(True)
-    img2 = plt.imshow(heatmapb.T, cmap=plt.cm.Reds, alpha=0.65, interpolation='bilinear', extent=extentb)
+    img2 = plt.imshow(heatmapb.T, cmap=plt.cm.Reds, alpha=0.65, interpolation='spline16', extent=extentb)
 
     plt.ylim(0,4.5)
     plt.xlim(-3.5,3.5)
-
-    # print("check1")
-    #plt.show()
-    # print("check2")
-    # return "<p> hi </p>"
 
     from io import BytesIO
     figfile = open(IMGROOT + img_name, 'w+')
 
     plt.savefig(figfile, format = "png")
 
-    # return mpld3(plt)
-    #HttpResponse(figfile.read(), content_type = "image/png")
 def our_data(request):
     return render(request, "our_data.html")
