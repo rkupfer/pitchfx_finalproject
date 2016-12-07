@@ -255,7 +255,7 @@
 <p> PITCHf/x records the location of every pitch and every major league game, along with identifying information on
   pitchers, batters, umpires, game situations, and game locations.
   PITCHf/x data are rich, but also arduous to parse through.
-  Fortunately, other baseball researchers have written python-based parsers to scrape and compile data.
+  Fortunately, other baseball researchers have written python-based parsers to scrape and compile data, which can be found under "PitchFx Parsers"
   The dataset that we scraped only includes
   regular season games, and pitchers who pitched more than 160 innings during the 2016 season.
   The variables from this dataset include:
@@ -266,8 +266,11 @@
   <li>And the location of the pitch based on the hight and distance away from the center of the plate.</li> </p>
   <p>Our second dataset is a CSV file we made using PITCHf/x pitcher IDs.
   Using these IDs, we recorded the pitcher's name, race, and ethnicity (Hispanic or not Hispanic).
-  We coded race and ethnicity by looking at photos of each pitcher (as this is how it was done in other baseball research).
-  We then merged the two datasets based on pitcher ID.  </p>
+  We coded race and ethnicity by looking at photos of each pitcher (as this is how it was done in other baseball research). </p>
+
+  <p> We merged this data using SQL. The merge is done in the file "pitch_extract.sql" We wrote code to pull data from a
+    SQL database, but it took far too long to process because the SQL database is 260mb. This code is commented out in
+    the views.py file. We instead selected the pitches we wanted in SQL and wrote them to a .csv file. </p>
 
   <p>We used PITCHf/x data to plot pitch locations on an x-y coordinate plane,
     and code each pitch as a called ball or strike.
