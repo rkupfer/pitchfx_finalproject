@@ -5,6 +5,8 @@
 # This takes a very, very long time.
 
 # first, build a simple logit model
+import statsmodels.api as sm
+from statsmodels.formula.api import logit as logit
   model = logit(formula = 'strike ~ px + pz', data = df)
   result = model.fit()
   df["probability_strike"] = result.fittedvalues

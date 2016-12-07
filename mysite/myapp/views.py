@@ -9,15 +9,12 @@ from .forms import InputForm
 from .models import RACE_DICT, ETHNICITY_DICT, HOME_DICT, NAME_DICT
 # ,PARK_NAME_DICT
 # we could have included park name, but it results in too small n for plots
-# park name stuff is commented out throughout
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.cm as cm
 from matplotlib.patches import Rectangle
 import sqlite3
-import statsmodels.api as sm
-from statsmodels.formula.api import logit as logit
 from io import BytesIO
 
 import pandas as pd
@@ -32,24 +29,17 @@ def form(request):
     pitcher_ethnicity = request.GET.get('pitcher_ethnicity', '')
     if not pitcher_ethnicity: pitcher_ethnicity = request.POST.get('pitcher_ethnicity', '0')
 
-    # park_name = request.GET.get('park_name', '')
-    # if not park_name: park_name = request.POST.get('park_name', 'Petco Park')
-
     home_or_away = request.GET.get('home_or_away', '')
     if not home_or_away: home_or_away = request.POST.get('home_or_away', '0')
 
     img_name = 'current_img.png'
-    plot(img_name, pitcher_race=pitcher_race, pitcher_ethnicity=pitcher_ethnicity,
-    # park_name,
-    home_or_away=home_or_away)
+    plot(img_name, pitcher_race=pitcher_race, pitcher_ethnicity=pitcher_ethnicity, home_or_away=home_or_away)
     params = {'form_action': reverse_lazy('myapp:form'),
               'form_method' : 'get',
               'form' : InputForm({'pitcher_race' : pitcher_race, 'pitcher_ethnicity' : pitcher_ethnicity,
-                                #   'park_name' : park_name,
                                 'home_or_away' : home_or_away}),
               'pitcher_race' : RACE_DICT[pitcher_race],
               'pitcher_ethnicity' : ETHNICITY_DICT[pitcher_ethnicity],
-            #   'park_name' : PARK_NAME_DICT[park_name],
               'home_or_away' : HOME_DICT[home_or_away],
               'img_name' : img_name}
 
@@ -73,7 +63,6 @@ class FormClass(FormView):
                                                                         'park_name' : park_name, 'home_or_away' : home_or_away}),
                                                     'pitcher_race' : RACE_DICT[pitcher_race],
                                                     'pitcher_ethnicity' : ETHNICITY_DICT[pitcher_ethnicity],
-                                                    # 'park_name' : PARK_NAME_DICT[park_name],
                                                     'home_or_away' : HOME_DICT[home_or_away],
                                                     'img_name' : img_name})
 
@@ -87,7 +76,6 @@ class FormClass(FormView):
                                                                         'park_name' : park_name, 'home_or_away' : home_or_away}),
                                                     'pitcher_race' : RACE_DICT[pitcher_race],
                                                     'pitcher_ethnicity' : ETHNICITY_DICT[pitcher_ethnicity],
-                                                    # 'park_name' : PARK_NAME_DICT[park_name],
                                                     'home_or_away' : HOME_DICT[home_or_away],
                                                     'img_name' : img_name})
 
@@ -95,13 +83,11 @@ def apply_form_masks(df, pitcher_race, pitcher_ethnicity, home_or_away, pitcher_
     # applying masks based on user selections
     maskrace = df.Race == pitcher_race
     maskethnicity = df.Hispanic == int(pitcher_ethnicity)
-    # maskname = df.park_name == park_name
     maskhome = df.bat_home_id == int(home_or_away)
 
     df = df.loc[maskrace]
     df = df.loc[maskethnicity]
     df = df.loc[maskhome]
-    # df = df[maskname]
 
     return df
 
@@ -144,6 +130,7 @@ def plot(img_name, pitcher_race=None, pitcher_ethnicity=None, home_or_away=None,
     # con.close()
     # df.px = df.px.astype(float).fillna(0.0)
     # df.pz = df.pz.astype(float).fillna(0.0)
+
     if pitcher_name:
         df = apply_nameform_masks(df, pitcher_name)
     elif pitcher_race and pitcher_ethnicity and home_or_away:
@@ -186,6 +173,7 @@ def plot(img_name, pitcher_race=None, pitcher_ethnicity=None, home_or_away=None,
 
     plt.savefig(figfile, format = "png", bbox_inches='tight', pad_inches=0)
 
+# a form for filtering by pitcher name
 def form2(request):
     pitcher_name= request.GET.get('pitcher_name', '')
     if not pitcher_name: pitcher_name = request.POST.get('pitcher_name', 'Aaron Sanchez')
@@ -230,12 +218,3 @@ class Form2Class(FormView):
 
 def our_data(request):
     return render(request, "our_data.html")
-
-def display_table(request):
-
-    df = pd.DataFrame(np.random.randn(10, 5), columns=['a', 'b', 'c', 'd', 'e'])
-    table = df.to_html(float_format = "%.3f", classes = "table table-striped", index_names = False)
-    table = table.replace('border="1"','border="0"')
-    table = table.replace('style="text-align: right;"', "") # control this in css, not pandas.
-
-    return render(request, 'view_table.html', {"title" : "An astounding table", "html_table" : table})

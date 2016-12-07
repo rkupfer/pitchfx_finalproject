@@ -236,7 +236,7 @@
               <li>First, run the server: <pre><code>python manage.py runserver</code></pre></li>
               <li>Copy and paste <a href=http://127.0.0.1:8000/myapp/>this ("http://127.0.0.1:8000/myapp/")</a> into your web browser to run it.</li>
               <li> You can choose one of two forms in the navbar. You can either filter by demographic variables under "Pitches" or by pitcher under "Pitches by Player". </li>
-              <li>Use the form to create the graph you are interested in (pick the race, ethnicity, and game status (home/away)).  The press "Go!" </li>
+              <li>Use the form to create the graph based on characteristics you're interested in.  Then press "Go!" </li>
             </ol>
             <p>Once you do this, a graph will display itself underneath the form.  Please feel free to change the graph you are looking at by playing around with the dropdown menus.</p>
             <p>If you would like to learn more about the data we've used and how we created this data, click on the <em>"Readme"</em> header at the top of the page or just click <a href=http://127.0.0.1:8000/myapp/ourdata/> this,</a>  or type into your browser "http://127.0.0.1:8000/myapp/ourdata/."
@@ -274,9 +274,11 @@
     The web app that we built allows the user to set parameters for which pitches
     are displayed based on PITCHf/x and Baseball Reference data – e.g. all pitches to black batters in home games.</p>
 
-  <h3>Previous Research</h3>
+  <h2>Previous Research</h2>
   <p>Some previous work has been done on umpire bias, ranging from Internet blog reporting to Hamermesh’s paper on umpires’ racial bias towards pitchers, <a href="http://sabr.org/research/there-racial-bias-among-umpires">see here</a>.
     Due to lack of time and access to umpier data (while we have umpire codes, we cannot find umpire names or races that correspond to them), we were unable to include "umpire race" as a variable.
+    We also tried to develop a classifier that would predict the probability that a pitch would be called a strike, and then plot those probabilities using a heatmap.
+    This was difficult because it required assigning each pixel a probability based on its nearest data point. We have the code written for this, but it is very, very slow. It can be found in scraps.py.
     Our project also did not undertake such deep econometric analyses, but simply provides a useful tool for visualizing differences in ball and strike calls based on a variety of parameters.
     One reservation about this project is that it seems like a “non-finding” is fairly likely without more intricate statistical analyses.</p>
           </div><!-- /.blog-post -->
