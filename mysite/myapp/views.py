@@ -2,11 +2,11 @@
 from django.http import HttpResponse, Http404, HttpResponseRedirect
 from django.shortcuts import render
 from django.core.urlresolvers import reverse_lazy
-from .forms import InputForm
+from .forms import InputForm, NameForm
 from os.path import join
 from django.conf import settings
 from .forms import InputForm
-from .models import RACE_DICT, ETHNICITY_DICT, HOME_DICT
+from .models import RACE_DICT, ETHNICITY_DICT, HOME_DICT, NAME_DICT
 # ,PARK_NAME_DICT
 # we could have included park name, but it results in too small n for plots
 # park name stuff is commented out throughout
@@ -20,6 +20,9 @@ import statsmodels.api as sm
 from statsmodels.formula.api import logit as logit
 from io import BytesIO
 
+import pandas as pd
+import numpy as np
+from django.views.generic import FormView
 
 # defining a form where user can select parameters to filter data for plot
 def form(request):
@@ -36,9 +39,9 @@ def form(request):
     if not home_or_away: home_or_away = request.POST.get('home_or_away', '0')
 
     img_name = 'current_img.png'
-    plot(pitcher_race, pitcher_ethnicity,
+    plot(img_name, pitcher_race=pitcher_race, pitcher_ethnicity=pitcher_ethnicity,
     # park_name,
-    home_or_away, img_name)
+    home_or_away=home_or_away)
     params = {'form_action': reverse_lazy('myapp:form'),
               'form_method' : 'get',
               'form' : InputForm({'pitcher_race' : pitcher_race, 'pitcher_ethnicity' : pitcher_ethnicity,
@@ -54,7 +57,6 @@ def form(request):
     return render(request, 'form.html', params)
 
 # defining a form class
-from django.views.generic import FormView
 class FormClass(FormView):
 
     template_name = 'form.html'
@@ -89,13 +91,43 @@ class FormClass(FormView):
                                                     'home_or_away' : HOME_DICT[home_or_away],
                                                     'img_name' : img_name})
 
+def apply_form_masks(df, pitcher_race, pitcher_ethnicity, home_or_away, pitcher_name=None):
+    # applying masks based on user selections
+    maskrace = df.Race == pitcher_race
+    maskethnicity = df.Hispanic == int(pitcher_ethnicity)
+    # maskname = df.park_name == park_name
+    maskhome = df.bat_home_id == int(home_or_away)
 
-# our homepage
-def index (request):
-    return HttpResponse("baseball.")
+    df = df.loc[maskrace]
+    df = df.loc[maskethnicity]
+    df = df.loc[maskhome]
+    # df = df[maskname]
+
+    return df
+
+def apply_pitch_masks(df):
+    # applying masks on pitch type: only called strikes and balls
+    maskpitch = (df.pitch_res == "C") | (df.pitch_res == "B")
+    df = df.loc[maskpitch]
+    df["strike"] = df.pitch_res == "C"
+    df["strike"] = df["strike"].astype(float)
+    maskc = df.pitch_res=="C"
+    maskb = df.pitch_res=="B"
+    # two dataframes allows for overlaid plots
+    dfc = df[maskc]
+    dfb = df[maskb]
+    # dataframes for plots - need x and z locations, know pitch outcome based on df
+    plot_dfc = dfc[["px", "pz"]]
+    plot_dfb = dfb[["px", "pz"]]
+    return plot_dfc, plot_dfb
+
+def apply_nameform_masks(df, pitcher_name):
+    maskname = (df.Name == pitcher_name)
+    df = df.loc[maskname]
+    return df
 
 # plotting a heatmap
-def plot(pitcher_race, pitcher_ethnicity, home_or_away, img_name):
+def plot(img_name, pitcher_race=None, pitcher_ethnicity=None, home_or_away=None, pitcher_name=None):
 
     IMGROOT = settings.BASE_DIR + '/myapp/static/'
     filename = join(settings.STATIC_ROOT, 'myapp/selected_pitches.csv')     # pulling in the .csv
@@ -112,30 +144,14 @@ def plot(pitcher_race, pitcher_ethnicity, home_or_away, img_name):
     # con.close()
     # df.px = df.px.astype(float).fillna(0.0)
     # df.pz = df.pz.astype(float).fillna(0.0)
+    if pitcher_name:
+        df = apply_nameform_masks(df, pitcher_name)
+    elif pitcher_race and pitcher_ethnicity and home_or_away:
+        df = apply_form_masks(df, pitcher_race, pitcher_ethnicity, home_or_away)
+    else:
+        print("something went wrong")
 
-    # applying masks based on user selections
-    maskrace = df.Race == pitcher_race
-    maskethnicity = df.Hispanic == int(pitcher_ethnicity)
-    # maskname = df.park_name == park_name
-    maskhome = df.bat_home_id == int(home_or_away)
-    df = df.loc[maskrace]
-    df = df.loc[maskethnicity]
-    df = df.loc[maskhome]
-    # df = df[maskname]
-
-    # applying masks on pitch type: only called strikes and balls
-    maskpitch = (df.pitch_res == "C") | (df.pitch_res == "B")
-    df = df.loc[maskpitch]
-    df["strike"] = df.pitch_res == "C"
-    df["strike"] = df["strike"].astype(float)
-    maskc = df.pitch_res=="C"
-    maskb = df.pitch_res=="B"
-    # two dataframes allows for overlaid plots
-    dfc = df[maskc]
-    dfb = df[maskb]
-    # dataframes for plots - need x and z locations, know pitch outcome based on df
-    plot_dfc = dfc[["px", "pz"]]
-    plot_dfb = dfb[["px", "pz"]]
+    plot_dfc, plot_dfb = apply_pitch_masks(df)
 
     # defining heatmaps using histograms
     heatmapc, xedgesc, yedgesc = np.histogram2d(plot_dfc.px, plot_dfc.pz, bins=(32,32))
@@ -172,90 +188,50 @@ def plot(pitcher_race, pitcher_ethnicity, home_or_away, img_name):
 
 def form2(request):
     pitcher_name= request.GET.get('pitcher_name', '')
-    if not pitcher_race: pitcher_race = request.POST.get('pitcher_name', 'Aaron Sanchez')
+    if not pitcher_name: pitcher_name = request.POST.get('pitcher_name', 'Aaron Sanchez')
 
     img_name = 'current_img.png'
 
-    plot2(pitcher_name, img_name)
-    params = {'form_action': reverse_lazy('myapp:form'),
-            'form_method' : 'get',
-            'form' : InputForm({'pitcher_name' : pitcher_name}),
+    plot(img_name, pitcher_name=pitcher_name)
+    params = {'form2_action': reverse_lazy('myapp:form2'),
+            'form2_method' : 'get',
+            'form2' : NameForm({'pitcher_name' : pitcher_name}),
             'pitcher_name' : NAME_DICT[pitcher_name],
             'img_name' : img_name}
     return render(request, 'form2.html', params)
 
+class Form2Class(FormView):
+
+    template_name = 'form2.html'
+    form2_class = NameForm
 
 
-def plot2(pitcher_name, img_name):
+    def get(self, request):
 
-    # print(settings.STATIC_ROOT)
-    IMGROOT = settings.BASE_DIR + '/myapp/static/'
-    # print(IMGROOT)
-    # print(pitcher_race, pitcher_ethnicity, park_name, home_or_away)
-    filename = join(settings.STATIC_ROOT, 'myapp/selected_pitches.csv')
-    df = pd.read_csv(filename)
-    # con = sqlite3.connect("pitch_tables.sql")
-    # query = ""
-    # for l in open("pitch_extract.sql"): query += l
-    # df = pd.read_sql_query(query,con)
-    # con.close()
-    # df.px = df.px.astype(float).fillna(0.0)
-    # df.pz = df.pz.astype(float).fillna(0.0)
+      pitcher_name = request.GET.get('pitcher_name', 'Aaron Sanchez')
 
-    maskname = (df.Name == pitcher_name)
-    df = df[maskname]
+      return render(request, self.template_name, {'form2_action': reverse_lazy('myapp:form2'),
+                                                  'form2_method' : 'get',
+                                                  'form2' : NameForm({'pitcher_name' : pitcher_name}),
+                                                  'pitcher_name' : NAME_DICT[pitcher_name],
+                                                  'img_name' : img_name})
 
-    maskpitch = (df.pitch_res == "C") | (df.pitch_res == "B")
-    df = df.loc[maskpitch]
-    df["strike"] = df.pitch_res == "C"
-    df["strike"] = df["strike"].astype(float)
+    def post(self, request):
 
-    maskc = df.pitch_res=="C"
-    maskb = df.pitch_res=="B"
-    dfc = df[maskc]
-    dfb = df[maskb]
-    plot_dfc = dfc[["px", "pz"]]
-    plot_dfb = dfb[["px", "pz"]]
+      pitcher_name = request.POST.get('pitcher_name', 'Aaron Sanchez')
 
-    heatmapc, xedgesc, yedgesc = np.histogram2d(plot_dfc.px, plot_dfc.pz, bins=(32,32))
-
-    heatmapb, xedgesb, yedgesb = np.histogram2d(plot_dfb.px, plot_dfb.pz, bins=(32,32))
-
-    extentc = [xedgesc[0], xedgesc[-1], yedgesc[0], yedgesc[-1]]
-    extentb = [xedgesb[0], xedgesb[-1], yedgesb[0], yedgesb[-1]]
-
-    # Plot heatmap
-    plt.clf()
-    someX, someY = 0, 2.5
-    fig, ax = plt.subplots()
-    currentAxis = plt.gca()
-    currentAxis.add_patch(Rectangle((someX - 0.6, someY - 1), 1.2, 2,
-                          alpha=1, facecolor='none'))
-    currentAxis.add_patch(Rectangle((someX - 1, someY - 1), 1.6, 2,
-                          alpha=1, facecolor='none', linestyle = 'dashed'))
+      return render(request, self.template_name, {'form2_action': reverse_lazy('myapp:form2'),
+                                                  'form2_method' : 'get',
+                                                  'form2' : NameForm({'pitcher_name' : pitcher_name}),
+                                                  'pitcher_name' : NAME_DICT[pitcher_name],
+                                                  'img_name' : img_name})
 
 
-    plt.title('Pitch Locations')
-
-    img1 = plt.imshow(heatmapc.T, cmap=plt.cm.Blues, alpha=1, interpolation='spline16', origin = 'lower', extent=extentc)
-    plt.hold(True)
-    img2 = plt.imshow(heatmapb.T, cmap=plt.cm.Reds, alpha=0.65, interpolation='spline16', origin = 'lower', extent=extentb)
-
-    plt.ylim(0,4.5)
-    plt.xlim(-3.5,3.5)
-
-    from io import BytesIO
-    figfile = open(IMGROOT + img_name, 'w+b')
-
-    plt.savefig(IMGROOT + img_name, format = "png", , bbox_inches='tight', pad_inches=0)
 
 def our_data(request):
     return render(request, "our_data.html")
 
 def display_table(request):
-
-    import pandas as pd
-    import numpy as np
 
     df = pd.DataFrame(np.random.randn(10, 5), columns=['a', 'b', 'c', 'd', 'e'])
     table = df.to_html(float_format = "%.3f", classes = "table table-striped", index_names = False)
