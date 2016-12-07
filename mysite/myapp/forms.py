@@ -1,7 +1,6 @@
 from django import forms
-from .models import Input, PITCHER_RACE, PITCHER_ETHNICITY, HOME_OR_AWAY
+from .models import Input, PITCHER_RACE, PITCHER_ETHNICITY, HOME_OR_AWAY, PITCH_NAME
 # PARK_NAME,
-
 from django.forms import ModelForm
 
 class InputForm(forms.ModelForm):
@@ -18,12 +17,15 @@ class InputForm(forms.ModelForm):
     home_or_away = forms.ChoiceField(choices=HOME_OR_AWAY, required=False,
                                widget=forms.Select())
 
+    pitcher_name = forms.ChoiceField(choices=PITCHER_NAME, required=False,
+                              widget=forms.Select())
+
     attrs = {'class' : 'form-nav-control',
              'onchange ' : 'this.form.submit()'}
 
     class Meta:
         model = Input
-        fields = ['pitcher_race', 'pitcher_ethnicity', 'home_or_away']
+        fields = ['pitcher_race', 'pitcher_ethnicity', 'home_or_away', 'pitcher_name']
         # 'park_name',
 
 

@@ -1,6 +1,8 @@
 from django.db import models
 
 # Create your models here.
+# We wanted to be able to not select on some paramter, using an 'all' option,
+# but we weren't able to figure it out.
 PITCHER_RACE = (
                 ('Black', 'Black'),
                 ('White', 'White'),
@@ -63,22 +65,112 @@ HOME_OR_AWAY = (
                 # ('All', 'All')
 )
 
+PITCHER_NAME = (
+                ('Aaron Sanchez', 'Aaron Sanchez'),
+                ('Adam Wainwright','Adam Wainwright'),
+                ('Anibal Sanchez', 'Anibal Sanchez'),
+                ('Archie Bradley', 'Archie Bradley'),
+                ('Bartolo Colon', 'Bartolo Colon'),
+                ('Brandon Finnegan', 'Brandon Finnegan'),
+                ('Carlos Carrasco', 'Carlos Carrasco'),
+                ('Carlos Martinez', 'Carlos Martinez'),
+                ('Carlos Rodon', 'Carlos Rodon'),
+                ('CC Sabathia', 'CC Sabathia'),
+                ('Chad Bettis', 'Chad Bettis'),
+                ('Chase Anderson', 'Chase Anderson'),
+                ('Chris Archer', 'Chris Archer'),
+                ('Chris Sale', 'Chris Sale'),
+                ('Chris Tillman', 'Chris Tillman'),
+                ('Clayton Kershaw', 'Clayton Kershaw'),
+                ('Cole Hamels', 'Cole Hamels'),
+                ('Collin McHugh', 'Collin McHugh'),
+                ('Corey Kluber', 'Corey Kluber'),
+                ('Dallas Keuchel', 'Dallas Keuchel'),
+                ('Dan Straily', 'Dan Straily'),
+                ('Danny Duffy', 'Danny Duffy'),
+                ('David Price', 'David Price'),
+                ('Doug Fister', 'Doug Fister'),
+                ('Drew Pomeranz', 'Drew Pomeranz'),
+                ('Drew Smyly', 'Drew Smyly'),
+                ('Edinson Volquez', 'Edinson Volquez'),
+                ('Ervin Santana', 'Ervin Santana'),
+                ('Felix Hernandez', 'Felix Hernandez'),
+                ('Francisco Liriano', 'Francisco Liriano'),
+                ('Gio Gonzalez', 'Gio Gonzalez'),
+                ('Hector Santiago', 'Hector Santiago'),
+                ('Hisashi Iwakuma', 'Hisashi Iwakuma'),
+                ('Ian Kennedy', 'Ian Kennedy'),
+                ('Ivan Nova', 'Ivan Nova'),
+                ('J.A. Happ', 'J.A. Happ'),
+                ('Jacob deGrom', 'Jacob deGrom'),
+                ('Jaime Garcia', 'Jaime Garcia'),
+                ('Jake Arrieta', 'Jake Arrieta'),
+                ('Jake Odorizzi', 'Jake Odorizzi'),
+                ('James Shields', 'James Shields'),
+                ('Jason Hammel', 'Jason Hammel'),
+                ('Jeff Samardzija', 'Jeff Samardzija'),
+                ('Jerad Eickhoff', 'Jerad Eickhoff'),
+                ('Jered Weaver', 'Jered Weaver'),
+                ('Jeremy Hellickson', 'Jeremy Hellickson'),
+                ('Jhoulys Chacin', 'Jhoulys Chacin'),
+                ('Jimmy Nelson', 'Jimmy Nelson'),
+                ('John Lackey', 'John Lackey'),
+                ('Johnny Cueto', 'Johnny Cueto'),
+                ('Jon Gray', 'Jon Gray'),
+                ('Jon Lester', 'Jon Lester'),
+                ('Jose Fernandez', 'Jose Fernandez'),
+                ('Jose Quintana', 'Jose Quintana'),
+                ('Josh Tomlin', 'Josh Tomlin'),
+                ('Julio Teheran', 'Julio Teheran'),
+                ('Justin Verlander', 'Justin Verlander'),
+                ('Kendall Graveman', 'Kendall Graveman'),
+                ('Kenta Maeda', 'Kenta Maeda'),
+                ('Kevin Gausman', 'Kevin Gausman'),
+                ('Kyle Gibson', 'Kyle Gibson'),
+                ('Kyle Hendricks', 'Kyle Hendricks'),
+                ('Luis Perdomo', 'Luis Perdomo'),
+                ('Madison Bumgarner', 'Madison Bumgarner'),
+                ('Marco Estrada', 'Marco Estrada'),
+                ('Marcus Stroman', 'Marcus Stroman'),
+                ('Martin Perez', 'Martin Perez'),
+                ('Masahiro Tanaka', 'Masahiro Tanaka'),
+                ('Matt Moore', 'Matt Moore'),
+                ('Matt Shoemaker', 'Matt Shoemaker'),
+                ('Matt Wisler', 'Matt Wisler'),
+                ('Max Scherzer', 'Max Scherzer'),
+                ('Michael Fulmer', 'Michael Fulmer'),
+                ('Michael Pineda', 'Michael Pineda'),
+                ('Mike Fiers', 'Mike Fiers'),
+                ('Mike Leake', 'Mike Leake'),
+                ('Noah Syndergaard', 'Noah Syndergaard'),
+                ('Patrick Corbin', 'Patrick Corbin'),
+                ('R.A. Dickey', 'R.A. Dickey'),
+                ('Rick Porcello', 'Rick Porcello'),
+                ('Ricky Nolasco', 'Ricky Nolasco'),
+                ('Robbie Ray', 'Robbie Ray'),
+                ('Sean Manaea', 'Sean Manaea'),
+                ('Stephen Strasburg', 'Stephen Strasburg'),
+                ('Steven Wright', 'Steven Wright'),
+                ('Tanner Roark', 'Tanner Roark'),
+                ('Tom Koehler', 'Tom Koehler'),
+                ('Trevor Bauer', 'Trevor Bauer'),
+                ('Tyler Chatwood', 'Tyler Chatwood'),
+                ('Ubaldo Jimenez', 'Ubaldo Jimenez'),
+                ('Wade Miley', 'Wade Miley'),
+                ('Yordano Ventura', 'Yordano Ventura'),
+                ('Zach Davies', 'Zach Davies'),
+                ('Zack Greinke', 'Zack Greinke')
+)
+
 RACE_DICT = dict(PITCHER_RACE)
 ETHNICITY_DICT = dict(PITCHER_ETHNICITY)
 # PARK_NAME_DICT = dict(PARK_NAME)
 HOME_DICT = dict(HOME_OR_AWAY)
+NAME_DICT = dict(PITCHER_NAME)
 
 class Input(models.Model):
     pitcher_race = models.CharField(max_length=50, choices=PITCHER_RACE)
     pitcher_ethnicity = models.CharField(max_length=50, choices=PITCHER_ETHNICITY)
     # park_name = models.CharField(max_length=50, choices=PARK_NAME)
     home_or_away = models.CharField(max_length=50, choices=HOME_OR_AWAY)
-
-
-# class Input(models.Model):
-#     Park_Name = models.CharField(max_length=50, choices=Park_Name)
-#
-#
-
-# class Input(models.Model):
-#     Home_or_Away = models.CharField(max_length=50, choices=Home_or_Away)
+    pitcher_name = models.CharField(max_length=50, choices=PITCHER_NAME)

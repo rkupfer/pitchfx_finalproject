@@ -170,5 +170,96 @@ def plot(pitcher_race, pitcher_ethnicity, home_or_away, img_name):
 
     plt.savefig(figfile, format = "png", bbox_inches='tight', pad_inches=0)
 
+def form2(request):
+    pitcher_name= request.GET.get('pitcher_name', '')
+    if not pitcher_race: pitcher_race = request.POST.get('pitcher_name', 'Aaron Sanchez')
+
+    img_name = 'current_img.png'
+
+    plot2(pitcher_name, img_name)
+    params = {'form_action': reverse_lazy('myapp:form'),
+            'form_method' : 'get',
+            'form' : InputForm({'pitcher_name' : pitcher_name}),
+            'pitcher_name' : NAME_DICT[pitcher_name],
+            'img_name' : img_name}
+    return render(request, 'form2.html', params)
+
+
+
+def plot2(pitcher_name, img_name):
+
+    # print(settings.STATIC_ROOT)
+    IMGROOT = settings.BASE_DIR + '/myapp/static/'
+    # print(IMGROOT)
+    # print(pitcher_race, pitcher_ethnicity, park_name, home_or_away)
+    filename = join(settings.STATIC_ROOT, 'myapp/selected_pitches.csv')
+    df = pd.read_csv(filename)
+    # con = sqlite3.connect("pitch_tables.sql")
+    # query = ""
+    # for l in open("pitch_extract.sql"): query += l
+    # df = pd.read_sql_query(query,con)
+    # con.close()
+    # df.px = df.px.astype(float).fillna(0.0)
+    # df.pz = df.pz.astype(float).fillna(0.0)
+
+    maskname = (df.Name == pitcher_name)
+    df = df[maskname]
+
+    maskpitch = (df.pitch_res == "C") | (df.pitch_res == "B")
+    df = df.loc[maskpitch]
+    df["strike"] = df.pitch_res == "C"
+    df["strike"] = df["strike"].astype(float)
+
+    maskc = df.pitch_res=="C"
+    maskb = df.pitch_res=="B"
+    dfc = df[maskc]
+    dfb = df[maskb]
+    plot_dfc = dfc[["px", "pz"]]
+    plot_dfb = dfb[["px", "pz"]]
+
+    heatmapc, xedgesc, yedgesc = np.histogram2d(plot_dfc.px, plot_dfc.pz, bins=(32,32))
+
+    heatmapb, xedgesb, yedgesb = np.histogram2d(plot_dfb.px, plot_dfb.pz, bins=(32,32))
+
+    extentc = [xedgesc[0], xedgesc[-1], yedgesc[0], yedgesc[-1]]
+    extentb = [xedgesb[0], xedgesb[-1], yedgesb[0], yedgesb[-1]]
+
+    # Plot heatmap
+    plt.clf()
+    someX, someY = 0, 2.5
+    fig, ax = plt.subplots()
+    currentAxis = plt.gca()
+    currentAxis.add_patch(Rectangle((someX - 0.6, someY - 1), 1.2, 2,
+                          alpha=1, facecolor='none'))
+    currentAxis.add_patch(Rectangle((someX - 1, someY - 1), 1.6, 2,
+                          alpha=1, facecolor='none', linestyle = 'dashed'))
+
+
+    plt.title('Pitch Locations')
+
+    img1 = plt.imshow(heatmapc.T, cmap=plt.cm.Blues, alpha=1, interpolation='spline16', origin = 'lower', extent=extentc)
+    plt.hold(True)
+    img2 = plt.imshow(heatmapb.T, cmap=plt.cm.Reds, alpha=0.65, interpolation='spline16', origin = 'lower', extent=extentb)
+
+    plt.ylim(0,4.5)
+    plt.xlim(-3.5,3.5)
+
+    from io import BytesIO
+    figfile = open(IMGROOT + img_name, 'w+b')
+
+    plt.savefig(IMGROOT + img_name, format = "png", , bbox_inches='tight', pad_inches=0)
+
 def our_data(request):
     return render(request, "our_data.html")
+
+def display_table(request):
+
+    import pandas as pd
+    import numpy as np
+
+    df = pd.DataFrame(np.random.randn(10, 5), columns=['a', 'b', 'c', 'd', 'e'])
+    table = df.to_html(float_format = "%.3f", classes = "table table-striped", index_names = False)
+    table = table.replace('border="1"','border="0"')
+    table = table.replace('style="text-align: right;"', "") # control this in css, not pandas.
+
+    return render(request, 'view_table.html', {"title" : "An astounding table", "html_table" : table})
